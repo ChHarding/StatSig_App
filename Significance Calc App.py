@@ -99,11 +99,11 @@ entry_percentage_a.grid(row=1, column=1)
 
 tk.Label(root, text="Sample Size B:").grid(row=2, column=0)
 entry_sample_size_b = tk.Entry(root)
-entry_sample_size_b.grid(row=2, column=0)
+entry_sample_size_b.grid(row=2, column=1)
 
 tk.Label(root, text="Percentage B:").grid(row=3, column=0)
 entry_percentage_b = tk.Entry(root)
-entry_percentage_b.grid(row=3, column=0)
+entry_percentage_b.grid(row=3, column=1)
 
 # Compute button
 compute_button = tk.Button(root, text="Compute", command=calculate_significance)
@@ -111,7 +111,7 @@ compute_button.grid(row=4, column=0, columnspan=2)
 
 # Reset button
 reset_button = tk.Button(root, text="Reset", command=reset_fields)
-reset_button.grid(row=4, column=1, padx=5, pady=5)
+reset_button.grid(row=4, column=2, padx=5, pady=5)
 
 # Output label
 output_text = tk.StringVar()
