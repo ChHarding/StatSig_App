@@ -1,8 +1,12 @@
 import tkinter as tk
 from scipy import stats
 import math
-import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import pandas as pd
+from pptx import Presentation  # Import for PowerPoint
+from pptx.util import Inches
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
@@ -41,26 +45,30 @@ def update_graph(p1, p2, confidence_reached):
     # Clear the previous plot
     for widget in plot_frame.winfo_children():
         widget.destroy()
-    
+
     # Create a new figure
     fig, ax = plt.subplots(figsize=(4, 3))
-    
+
     # Data for the bar chart
     labels = ['Percentage A', 'Percentage B']
     values = [p1 * 100, p2 * 100]
-    
-    # Plot the bars
-    ax.bar(labels, values, color=['blue', 'orange'])
-    
+
+    # Create a DataFrame for easier plotting with seaborn
+    import pandas as pd
+    data = pd.DataFrame({'Labels': labels, 'Values': values})
+
+    # Use seaborn to create the bar plot
+    sns.barplot(x='Labels', y='Values', data=data, ax=ax, palette='deep')
+
     # Add a line indicating the significance level, if any
     if confidence_reached:
         ax.axhline(confidence_reached * 100, color='red', linestyle='--', label=f'Significant at {confidence_reached*100}%')
         ax.legend()
-    
+
     # Set the plot labels and title
     ax.set_ylabel('Percentages')
     ax.set_title('Percentage Comparison')
-    
+
     # Embed the plot into Tkinter
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)
     canvas.draw()
@@ -83,6 +91,34 @@ def reset_fields(): # This enables a reset button to clear fields and get ready 
     entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
     entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
     output_text.set('')  # Clear output text after reset
+
+def export_to_powerpoint():
+    
+    #create a power point presentation
+    prs=Presentation()
+    
+    # add a slide with a title and a content layer
+    slide_layout=prs.slide_layout[5] #this should give you a blank slide.
+    slide=prs.slides.add_slide(slide_layout)
+    
+    #add a title to the slide
+    title_shape=slide.shapes.title
+    title_shape.text=input()
+
+    #add plot to the slide
+    img_path='plot.png'
+    left=Inches(0.75)
+    top=Inches(2.0)
+    slide.shapes.add_picture(img_path, left, top, height=Inches(4))
+
+    #add the significance output to the slide
+    textbox=slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches (5.0), Inches(1.0))
+    text_frame=textbox.text_frame
+    text_frame.text=output_text.get()
+
+    #save the power point file 
+    prs.save('significance_result.pptx')
+    output_text.set('Exporterd to significance_result.pptx')
 
 # Tkinter setup
 root = tk.Tk()
