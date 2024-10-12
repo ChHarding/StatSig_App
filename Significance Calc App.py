@@ -154,6 +154,10 @@ output_text = tk.StringVar()
 output_label = tk.Label(root, textvariable=output_text)
 output_label.grid(row=5, column=0, columnspan=2)
 
+#output button to export graph
+export_button=tk.Button(root, text="Export to Power Point", command=export_to_powerpoint)
+export_button.grid(row=5, column=0, columnspan=3,padx=5, pady=5)
+
 # Frame for the plot
 plot_frame = tk.Frame(root)
 plot_frame.grid(row=6, column=0, columnspan=3)
