@@ -129,6 +129,7 @@ def export_to_powerpoint():
 root = tk.Tk()
 root.title("Statistical Significance Calculator")
 
+# this is to prompt the input of a custom slide title.
 tk.Label(root, text="Slide Title:").grid(row=7, column=0)
 entry_slide_title = tk.Entry(root)
 entry_slide_title.grid(row=7, column=1)
