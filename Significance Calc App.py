@@ -94,6 +94,11 @@ def reset_fields(): # This enables a reset button to clear fields and get ready 
 
 def export_to_powerpoint():
     
+    slide_title=entry_slide_title.get()
+    if not slide_title:
+        output_text.set("Please provide a title for your slide.")
+        return
+
     #create a power point presentation
     prs=Presentation()
     
@@ -123,6 +128,10 @@ def export_to_powerpoint():
 # Tkinter setup
 root = tk.Tk()
 root.title("Statistical Significance Calculator")
+
+tk.Label(root, text="Slide Title:").grid(row=7, column=0)
+entry_slide_title = tk.Entry(root)
+entry_slide_title.grid(row=7, column=1)
 
 # Input fields
 tk.Label(root, text="Sample Size A:").grid(row=0, column=0)
