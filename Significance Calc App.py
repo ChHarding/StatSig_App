@@ -42,6 +42,7 @@ def calculate_significance(): #I am adding this an easy way to start. I need to 
     update_graph(p1, p2, confidence_reached)
 
 def update_graph(p1, p2, confidence_reached):
+
     # Clear the previous plot
     for widget in plot_frame.winfo_children():
         widget.destroy()
@@ -73,13 +74,9 @@ def update_graph(p1, p2, confidence_reached):
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)
     canvas.draw()
     canvas.get_tk_widget().pack()
-
-def reset_fields():
-    entry_sample_size_a.delete(0, tk.END)
-    entry_percentage_a.delete(0, tk.END)
-    entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
-    entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
-    output_text.set('')  # Clear output text after reset
+        
+    #saving the plot as an image for export.
+    fig.savefig('plot.png', bbox_inches='tight')
     
     # Clear the graph
     for widget in plot_frame.winfo_children():
@@ -103,12 +100,12 @@ def export_to_powerpoint():
     prs=Presentation()
     
     # add a slide with a title and a content layer
-    slide_layout=prs.slide_layout[5] #this should give you a blank slide.
+    slide_layout=prs.slide_layouts[5] #this should give you a blank slide.
     slide=prs.slides.add_slide(slide_layout)
     
     #add a title to the slide
     title_shape=slide.shapes.title
-    title_shape.text=input()
+    title_shape.text=slide_title
 
     #add plot to the slide
     img_path='plot.png'
