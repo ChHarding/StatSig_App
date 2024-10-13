@@ -76,11 +76,8 @@ def update_graph(p1, p2, confidence_reached):
     canvas.get_tk_widget().pack()
         
     #saving the plot as an image for export.
-    fig.savefig('plot.png', bbox_inches='tight')
+    #fig.savefig('plot.png', bbox_inches='tight')
     
-    # Clear the graph
-    for widget in plot_frame.winfo_children():
-        widget.destroy()
 
 def reset_fields(): # This enables a reset button to clear fields and get ready for the next computation
     entry_sample_size_a.delete(0, tk.END)
@@ -88,6 +85,10 @@ def reset_fields(): # This enables a reset button to clear fields and get ready 
     entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
     entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
     output_text.set('')  # Clear output text after reset
+
+ # Clear the graph
+    for widget in plot_frame.winfo_children():
+        widget.destroy()
 
 def export_to_powerpoint():
     
@@ -163,7 +164,7 @@ output_label.grid(row=5, column=0, columnspan=2)
 
 #output button to export graph
 export_button=tk.Button(root, text="Export to Power Point", command=export_to_powerpoint)
-export_button.grid(row=5, column=0, columnspan=3,padx=5, pady=5)
+export_button.grid(row=8, column=0, columnspan=3,padx=5, pady=5)
 
 # Frame for the plot
 plot_frame = tk.Frame(root)
