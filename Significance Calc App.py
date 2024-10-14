@@ -1,8 +1,12 @@
 import tkinter as tk
 from scipy import stats
 import math
-import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import pandas as pd
+from pptx import Presentation  # Import for PowerPoint
+from pptx.util import Inches
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
@@ -38,44 +42,42 @@ def calculate_significance(): #I am adding this an easy way to start. I need to 
     update_graph(p1, p2, confidence_reached)
 
 def update_graph(p1, p2, confidence_reached):
+
     # Clear the previous plot
     for widget in plot_frame.winfo_children():
         widget.destroy()
-    
+
     # Create a new figure
     fig, ax = plt.subplots(figsize=(4, 3))
-    
+
     # Data for the bar chart
     labels = ['Percentage A', 'Percentage B']
     values = [p1 * 100, p2 * 100]
-    
-    # Plot the bars
-    ax.bar(labels, values, color=['blue', 'orange'])
-    
+
+    # Create a DataFrame for easier plotting with seaborn
+    import pandas as pd
+    data = pd.DataFrame({'Labels': labels, 'Values': values})
+
+    # Use seaborn to create the bar plot
+    sns.barplot(x='Labels', y='Values', data=data, ax=ax, palette='deep')
+
     # Add a line indicating the significance level, if any
     if confidence_reached:
         ax.axhline(confidence_reached * 100, color='red', linestyle='--', label=f'Significant at {confidence_reached*100}%')
         ax.legend()
-    
+
     # Set the plot labels and title
     ax.set_ylabel('Percentages')
     ax.set_title('Percentage Comparison')
-    
+
     # Embed the plot into Tkinter
     canvas = FigureCanvasTkAgg(fig, master=plot_frame)
     canvas.draw()
     canvas.get_tk_widget().pack()
-
-def reset_fields():
-    entry_sample_size_a.delete(0, tk.END)
-    entry_percentage_a.delete(0, tk.END)
-    entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
-    entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
-    output_text.set('')  # Clear output text after reset
+        
+    #saving the plot as an image for export.
+    #fig.savefig('plot.png', bbox_inches='tight')
     
-    # Clear the graph
-    for widget in plot_frame.winfo_children():
-        widget.destroy()
 
 def reset_fields(): # This enables a reset button to clear fields and get ready for the next computation
     entry_sample_size_a.delete(0, tk.END)
@@ -84,9 +86,51 @@ def reset_fields(): # This enables a reset button to clear fields and get ready 
     entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
     output_text.set('')  # Clear output text after reset
 
+ # Clear the graph
+    for widget in plot_frame.winfo_children():
+        widget.destroy()
+
+def export_to_powerpoint():
+    
+    slide_title=entry_slide_title.get()
+    if not slide_title:
+        output_text.set("Please provide a title for your slide.")
+        return
+
+    #create a power point presentation
+    prs=Presentation()
+    
+    # add a slide with a title and a content layer
+    slide_layout=prs.slide_layouts[5] #this should give you a blank slide.
+    slide=prs.slides.add_slide(slide_layout)
+    
+    #add a title to the slide
+    title_shape=slide.shapes.title
+    title_shape.text=slide_title
+
+    #add plot to the slide
+    img_path='plot.png'
+    left=Inches(0.75)
+    top=Inches(2.0)
+    slide.shapes.add_picture(img_path, left, top, height=Inches(4))
+
+    #add the significance output to the slide
+    textbox=slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches (5.0), Inches(1.0))
+    text_frame=textbox.text_frame
+    text_frame.text=output_text.get()
+
+    #save the power point file 
+    prs.save('significance_result.pptx')
+    output_text.set('Exporterd to significance_result.pptx')
+
 # Tkinter setup
 root = tk.Tk()
 root.title("Statistical Significance Calculator")
+
+# this is to prompt the input of a custom slide title.
+tk.Label(root, text="Slide Title:").grid(row=7, column=0)
+entry_slide_title = tk.Entry(root)
+entry_slide_title.grid(row=7, column=1)
 
 # Input fields
 tk.Label(root, text="Sample Size A:").grid(row=0, column=0)
@@ -117,6 +161,10 @@ reset_button.grid(row=4, column=2, padx=5, pady=5)
 output_text = tk.StringVar()
 output_label = tk.Label(root, textvariable=output_text)
 output_label.grid(row=5, column=0, columnspan=2)
+
+#output button to export graph
+export_button=tk.Button(root, text="Export to Power Point", command=export_to_powerpoint)
+export_button.grid(row=8, column=0, columnspan=3,padx=5, pady=5)
 
 # Frame for the plot
 plot_frame = tk.Frame(root)
