@@ -56,11 +56,15 @@ def calculate_significance():
     for confidence in [0.99, 0.95, 0.90, 0.85, 0.80]:
         significance_level = 1 - confidence
         if p_value < significance_level:
+            confidence_reached = confidence
             output_text.set(f"Significant at {confidence*100}% level (p-value: {p_value:.4f})")
             break
     else:
         output_text.set(f"Not significant (p-value: {p_value:.4f})")
 
+ # Update graph with the confidence_reached variable
+    update_graph(p1, p2, confidence_reached)
+    
    # Call the function to update the graph
     update_graph(p1, p2, confidence_reached)
 
