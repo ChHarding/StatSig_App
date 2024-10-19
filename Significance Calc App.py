@@ -64,7 +64,7 @@ def calculate_significance():
 
  # Update graph with the confidence_reached variable
     update_graph(p1, p2, confidence_reached)
-    
+
    # Call the function to update the graph
     update_graph(p1, p2, confidence_reached)
 
@@ -159,21 +159,22 @@ entry_slide_title = tk.Entry(root)
 entry_slide_title.grid(row=7, column=1)
 
 # Input fields
-tk.Label(root, text="Sample Size A:").grid(row=0, column=0)
+tk.Label(root, text="Sample Size A:").grid(row=0, column=0, padx=10, pady=5)
 entry_sample_size_a = tk.Entry(root)
-entry_sample_size_a.grid(row=0, column=1)
+entry_sample_size_a.grid(row=0, column=1, padx=10, pady=5)
 
-tk.Label(root, text="Percentage A:").grid(row=1, column=0)
+
+tk.Label(root, text="Percentage A:").grid(row=1, column=0, padx=10,pady=5)
 entry_percentage_a = tk.Entry(root)
-entry_percentage_a.grid(row=1, column=1)
+entry_percentage_a.grid(row=1, column=1, padx=10, pady=5)
 
-tk.Label(root, text="Sample Size B:").grid(row=2, column=0)
+tk.Label(root, text="Sample Size B:").grid(row=2, column=0, padx=10, pady=5)
 entry_sample_size_b = tk.Entry(root)
-entry_sample_size_b.grid(row=2, column=1)
+entry_sample_size_b.grid(row=2, column=1, padx=10, pady=5)
 
-tk.Label(root, text="Percentage B:").grid(row=3, column=0)
+tk.Label(root, text="Percentage B:").grid(row=3, column=0, padx=10, pady=5)
 entry_percentage_b = tk.Entry(root)
-entry_percentage_b.grid(row=3, column=1)
+entry_percentage_b.grid(row=3, column=1, padx=10, pady=5)
 
 # Compute button
 compute_button = tk.Button(root, text="Compute", command=calculate_significance)
