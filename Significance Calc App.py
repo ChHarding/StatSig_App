@@ -1,3 +1,4 @@
+# you will need to install pip install python-pptx
 import tkinter as tk
 from scipy import stats
 import math
@@ -10,12 +11,41 @@ from pptx.util import Inches
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
-def calculate_significance(): #I am adding this an easy way to start. I need to add the field input verification to this code to ensure it works properly. 
+#This input def allows for validation of the percentages.
+def validate_input():
+    try:
+        # Get and validate inputs
+        n1 = int(entry_sample_size_a.get())
+        n2 = int(entry_sample_size_b.get())
+        p1 = float(entry_percentage_a.get()) / 100
+        p2 = float(entry_percentage_b.get()) / 100
+        
+        # Check if percentages are within the valid range
+        if not (0 <= p1 <= 1 and 0 <= p2 <= 1):
+            raise ValueError("Percentages should be between 0 and 100")
+        
+        return n1, n2, p1, p2
+    
+    except ValueError as e:
+        # Display the error message
+        output_text.set(f"Invalid input: {e}")
+        return None
+
+def calculate_significance():
+    # Validate inputs first
+    inputs = validate_input()
+    if inputs is None:
+        return  # Exit if inputs are invalid
+
+    # Unpack validated inputs
+    n1, n2, p1, p2 = inputs
+
+#def calculate_significance(): #I am adding this an easy way to start. I need to add the field input verification to this code to ensure it works properly. 
     # Get inputs from the GUI required to calculate. 
-    n1 = int(entry_sample_size_a.get())
-    n2 = int(entry_sample_size_b.get())
-    p1 = float(entry_percentage_a.get()) / 100
-    p2 = float(entry_percentage_b.get()) / 100
+    #n1 = int(entry_sample_size_a.get())
+    #n2 = int(entry_sample_size_b.get())
+    #p1 = float(entry_percentage_a.get()) / 100
+    #p2 = float(entry_percentage_b.get()) / 100
     
     # Calculate pooled proportion
     p_pool = (p1 * n1 + p2 * n2) / (n1 + n2)
@@ -55,7 +85,6 @@ def update_graph(p1, p2, confidence_reached):
     values = [p1 * 100, p2 * 100]
 
     # Create a DataFrame for easier plotting with seaborn
-    import pandas as pd
     data = pd.DataFrame({'Labels': labels, 'Values': values})
 
     # Use seaborn to create the bar plot
@@ -112,10 +141,10 @@ def export_to_powerpoint():
     img_path='plot.png'
     left=Inches(0.75)
     top=Inches(2.0)
-    slide.shapes.add_picture(img_path, left, top, height=Inches(4))
+    slide.shapes.add_picture(img_path, left, top, height=Inches(6))
 
     #add the significance output to the slide
-    textbox=slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches (5.0), Inches(1.0))
+    textbox=slide.shapes.add_textbox(Inches(0.75), Inches(6.), Inches (0.5), Inches(0.5))
     text_frame=textbox.text_frame
     text_frame.text=output_text.get()
 
