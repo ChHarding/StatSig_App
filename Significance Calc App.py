@@ -40,13 +40,6 @@ def calculate_significance():
     # Unpack validated inputs
     n1, n2, p1, p2 = inputs
 
-#def calculate_significance(): #I am adding this an easy way to start. I need to add the field input verification to this code to ensure it works properly. 
-    # Get inputs from the GUI required to calculate. 
-    #n1 = int(entry_sample_size_a.get())
-    #n2 = int(entry_sample_size_b.get())
-    #p1 = float(entry_percentage_a.get()) / 100
-    #p2 = float(entry_percentage_b.get()) / 100
-    
     # Calculate pooled proportion
     p_pool = (p1 * n1 + p2 * n2) / (n1 + n2)
     
@@ -105,7 +98,7 @@ def update_graph(p1, p2, confidence_reached):
     canvas.get_tk_widget().pack()
         
     #saving the plot as an image for export.
-    #fig.savefig('plot.png', bbox_inches='tight')
+    fig.savefig('plot.png', bbox_inches='tight')
     
 
 def reset_fields(): # This enables a reset button to clear fields and get ready for the next computation
@@ -150,7 +143,7 @@ def export_to_powerpoint():
 
     #save the power point file 
     prs.save('significance_result.pptx')
-    output_text.set('Exporterd to significance_result.pptx')
+    output_text.set('Exported to significance_result.pptx')
 
 # Tkinter setup
 root = tk.Tk()
