@@ -158,10 +158,6 @@ class SignificanceCalculatorApp:
         canvas.draw()
         canvas.get_tk_widget().pack()
 
-        #I want to generate a unique file name
-        timestamp = self.datetime.now().strftime('%Y%m%d_%H%M%S')
-        img_path = f'plot_{timestamp}.png' 
-
         #saving the plot as an image for export.
         fig.savefig('plot.png', bbox_inches='tight')
 
