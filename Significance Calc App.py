@@ -5,6 +5,7 @@ import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime #importing datetime to use for auto file creation
 try:
     from pptx import Presentation  # Import for PowerPoint
     from pptx.util import Inches
@@ -198,7 +199,7 @@ class SignificanceCalculatorApp:
         title_shape.text_frame.paragraphs[0].alignment=PP_ALIGN.LEFT
         
         #add plot to the slide
-        img_path='plot.png'
+        img_path= getattr(self, 'latest_image_path', 'plot.png')
         left=Inches(0.5)
         top=Inches(1.0)
         slide.shapes.add_picture(img_path, left, top, height=Inches(6))
