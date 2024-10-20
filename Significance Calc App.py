@@ -11,14 +11,67 @@ from pptx.util import Inches
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
+class SignificanceCalculatorApp:
+    def __init__(self, master):
+        self.master=master
+        self.master.title("Statistical Significance Calculator")
+
+        # Initialize UI components
+        self.create_widgets()
+
+    def create_widgets(self):
+        # this is to prompt the input of a custom slide title.
+        tk.Label(root, text="Slide Title:").grid(row=7, column=0)
+        entry_slide_title = tk.Entry(root)
+        entry_slide_title.grid(row=7, column=1)
+
+        # Input fields
+        tk.Label(root, text="Sample Size A:").grid(row=0, column=0, padx=10, pady=5)
+        entry_sample_size_a = tk.Entry(root)
+        entry_sample_size_a.grid(row=0, column=1, padx=10, pady=5)
+
+
+        tk.Label(root, text="Percentage A:").grid(row=1, column=0, padx=10,pady=5)
+        entry_percentage_a = tk.Entry(root)
+        entry_percentage_a.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(root, text="Sample Size B:").grid(row=2, column=0, padx=10, pady=5)
+        entry_sample_size_b = tk.Entry(root)
+        entry_sample_size_b.grid(row=2, column=1, padx=10, pady=5)
+
+        tk.Label(root, text="Percentage B:").grid(row=3, column=0, padx=10, pady=5)
+        entry_percentage_b = tk.Entry(root)
+        entry_percentage_b.grid(row=3, column=1, padx=10, pady=5)
+
+        # Compute button
+        compute_button = tk.Button(root, text="Compute", command=calculate_significance)
+        compute_button.grid(row=4, column=0, columnspan=2)
+
+        # Reset button
+        reset_button = tk.Button(root, text="Reset", command=reset_fields)
+        reset_button.grid(row=4, column=2, padx=5, pady=5)
+
+        # Output label
+        output_text = tk.StringVar()
+        output_label = tk.Label(root, textvariable=output_text)
+        output_label.grid(row=5, column=0, columnspan=2)
+
+        #output button to export graph
+        export_button=tk.Button(root, text="Export to Power Point", command=export_to_powerpoint)
+        export_button.grid(row=8, column=0, columnspan=3,padx=5, pady=5)
+
+        # Frame for the plot
+        plot_frame = tk.Frame(root)
+        plot_frame.grid(row=6, column=0, columnspan=3)
+
 #This input def allows for validation of the percentages.
-def validate_input():
+def validate_input(self):
     try:
         # Get and validate inputs
-        n1 = int(entry_sample_size_a.get())
-        n2 = int(entry_sample_size_b.get())
-        p1 = float(entry_percentage_a.get()) / 100
-        p2 = float(entry_percentage_b.get()) / 100
+        n1 = int(self.entry_sample_size_a.get())
+        n2 = int(self.entry_sample_size_b.get())
+        p1 = float(self.entry_percentage_a.get()) / 100
+        p2 = float(self.entry_percentage_b.get()) / 100
         
         # Check if percentages are within the valid range
         if not (0 <= p1 <= 1 and 0 <= p2 <= 1):
@@ -28,12 +81,12 @@ def validate_input():
     
     except ValueError as e:
         # Display the error message
-        output_text.set(f"Invalid input: {e}")
+        self.output_text.set(f"Invalid input: {e}")
         return None
 
-def calculate_significance():
+def calculate_significance(self):
     # Validate inputs first
-    inputs = validate_input()
+    inputs = self.validate_input()
     if inputs is None:
         return  # Exit if inputs are invalid
 
@@ -57,21 +110,21 @@ def calculate_significance():
         significance_level = 1 - confidence
         if p_value < significance_level:
             confidence_reached = confidence
-            output_text.set(f"Significant at {confidence*100}% level (p-value: {p_value:.4f})")
+            self.output_text.set(f"Significant at {confidence*100}% level (p-value: {p_value:.4f})")
             break
     else:
-        output_text.set(f"Not significant (p-value: {p_value:.4f})")
+        self.output_text.set(f"Not significant (p-value: {p_value:.4f})")
 
  # Update graph with the confidence_reached variable
-    update_graph(p1, p2, confidence_reached)
+    self.update_graph(p1, p2, confidence_reached)
 
    # Call the function to update the graph
     update_graph(p1, p2, confidence_reached)
 
-def update_graph(p1, p2, confidence_reached):
+def update_graph(self,p1, p2, confidence_reached):
 
     # Clear the previous plot
-    for widget in plot_frame.winfo_children():
+    for widget in self.plot_frame.winfo_children():
         widget.destroy()
 
     # Create a new figure
@@ -97,7 +150,7 @@ def update_graph(p1, p2, confidence_reached):
     ax.set_title('Percentage Comparison')
 
     # Embed the plot into Tkinter
-    canvas = FigureCanvasTkAgg(fig, master=plot_frame)
+    canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
     canvas.draw()
     canvas.get_tk_widget().pack()
         
@@ -105,22 +158,22 @@ def update_graph(p1, p2, confidence_reached):
     fig.savefig('plot.png', bbox_inches='tight')
     
 
-def reset_fields(): # This enables a reset button to clear fields and get ready for the next computation
-    entry_sample_size_a.delete(0, tk.END)
-    entry_percentage_a.delete(0, tk.END)
-    entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
-    entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
-    output_text.set('')  # Clear output text after reset
+def reset_fields(self): # This enables a reset button to clear fields and get ready for the next computation
+    self.entry_sample_size_a.delete(0, tk.END)
+    self.entry_percentage_a.delete(0, tk.END)
+    self.entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
+    self.entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
+    self.output_text.set('')  # Clear output text after reset
 
  # Clear the graph
-    for widget in plot_frame.winfo_children():
+    for widget in self.plot_frame.winfo_children():
         widget.destroy()
 
-def export_to_powerpoint():
+def export_to_powerpoint(self):
     
-    slide_title=entry_slide_title.get()
+    slide_title=self.entry_slide_title.get()
     if not slide_title:
-        output_text.set("Please provide a title for your slide.")
+        self.output_text.set("Please provide a title for your slide.")
         return
 
     #create a power point presentation
@@ -143,58 +196,14 @@ def export_to_powerpoint():
     #add the significance output to the slide
     textbox=slide.shapes.add_textbox(Inches(0.75), Inches(6.), Inches (0.5), Inches(0.5))
     text_frame=textbox.text_frame
-    text_frame.text=output_text.get()
+    text_frame.text=self.output_text.get()
 
     #save the power point file 
     prs.save('significance_result.pptx')
-    output_text.set('Exported to significance_result.pptx')
+    self.output_text.set('Exported to significance_result.pptx')
 
 # Tkinter setup
-root = tk.Tk()
-root.title("Statistical Significance Calculator")
-
-# this is to prompt the input of a custom slide title.
-tk.Label(root, text="Slide Title:").grid(row=7, column=0)
-entry_slide_title = tk.Entry(root)
-entry_slide_title.grid(row=7, column=1)
-
-# Input fields
-tk.Label(root, text="Sample Size A:").grid(row=0, column=0, padx=10, pady=5)
-entry_sample_size_a = tk.Entry(root)
-entry_sample_size_a.grid(row=0, column=1, padx=10, pady=5)
-
-
-tk.Label(root, text="Percentage A:").grid(row=1, column=0, padx=10,pady=5)
-entry_percentage_a = tk.Entry(root)
-entry_percentage_a.grid(row=1, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Sample Size B:").grid(row=2, column=0, padx=10, pady=5)
-entry_sample_size_b = tk.Entry(root)
-entry_sample_size_b.grid(row=2, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Percentage B:").grid(row=3, column=0, padx=10, pady=5)
-entry_percentage_b = tk.Entry(root)
-entry_percentage_b.grid(row=3, column=1, padx=10, pady=5)
-
-# Compute button
-compute_button = tk.Button(root, text="Compute", command=calculate_significance)
-compute_button.grid(row=4, column=0, columnspan=2)
-
-# Reset button
-reset_button = tk.Button(root, text="Reset", command=reset_fields)
-reset_button.grid(row=4, column=2, padx=5, pady=5)
-
-# Output label
-output_text = tk.StringVar()
-output_label = tk.Label(root, textvariable=output_text)
-output_label.grid(row=5, column=0, columnspan=2)
-
-#output button to export graph
-export_button=tk.Button(root, text="Export to Power Point", command=export_to_powerpoint)
-export_button.grid(row=8, column=0, columnspan=3,padx=5, pady=5)
-
-# Frame for the plot
-plot_frame = tk.Frame(root)
-plot_frame.grid(row=6, column=0, columnspan=3)
-
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SignificanceCalculatorApp(root)
+    root.mainloop()
