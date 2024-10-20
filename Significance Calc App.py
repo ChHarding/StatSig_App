@@ -1,4 +1,3 @@
-# you will need to install pip install python-pptx
 import tkinter as tk
 from scipy import stats
 import math
@@ -6,9 +5,13 @@ import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import pandas as pd
-from pptx import Presentation  # Import for PowerPoint
-from pptx.util import Inches
-from pptx.enum.text import PP_ALIGN  # Import for alignment
+try:
+    from pptx import Presentation  # Import for PowerPoint
+    from pptx.util import Inches
+    from pptx.enum.text import PP_ALIGN  # Import for alignment
+except ImportError:
+    print("Please install python-pptx to use this feature")
+    exit()
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
