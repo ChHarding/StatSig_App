@@ -184,7 +184,7 @@ class SignificanceCalculatorApp:
         prs=Presentation()
         
         # add a slide with a title and a content layer
-        slide_layout=prs.slide_layouts[5] #this should give you a blank slide.
+        slide_layout=prs.slide_layouts[6] #this should give you a blank slide.
         slide=prs.slides.add_slide(slide_layout)
         
         # Add a title as a textbox
@@ -200,8 +200,11 @@ class SignificanceCalculatorApp:
         for paragraph in title_frame.paragraphs:
             paragraph.alignment = PP_ALIGN.LEFT  # Left justify
         # Optionally, if you want it to align at the top within the box, you can adjust:
-        paragraph.space_after = 0  # Remove space after
-        
+            paragraph.space_after = 0  # Remove space after
+         # Set font size for the paragraph
+        for run in paragraph.runs:
+            run.font.size = Inches(0.375)
+
         #add plot to the slide
         img_path= getattr(self, 'latest_image_path', 'plot.png')
         left=Inches(0.5)
