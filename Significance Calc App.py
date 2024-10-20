@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pptx import Presentation  # Import for PowerPoint
 from pptx.util import Inches
+from pptx.enum.text import PP_ALIGN  # Import for alignment
 #from pptx import Presentation (imports for code that I am working on to make the app a bit more complex and output a power point slide. I am still working through the ways to make this function)
 #from pptx.util import Inches
 
@@ -21,7 +22,7 @@ class SignificanceCalculatorApp:
 
     def create_widgets(self):
         # this is to prompt the input of a custom slide title.
-        tk.Label(self.master, text="Slide Title:").grid(row=7, column=0)
+        tk.Label(self.master, text="Enter a Title for your slide:").grid(row=7, column=0)
         self.entry_slide_title = tk.Entry(self.master)
         self.entry_slide_title.grid(row=7, column=1)
 
@@ -186,14 +187,17 @@ class SignificanceCalculatorApp:
         title_shape=slide.shapes.title
         title_shape.text=slide_title
 
+        #making the slide title left justified
+        title_shape.text_frame.paragraphs[0].alignment=PP_ALIGN.LEFT
+        
         #add plot to the slide
         img_path='plot.png'
-        left=Inches(0.75)
-        top=Inches(2.0)
+        left=Inches(0.5)
+        top=Inches(1.0)
         slide.shapes.add_picture(img_path, left, top, height=Inches(6))
 
         #add the significance output to the slide
-        textbox=slide.shapes.add_textbox(Inches(0.75), Inches(6.0), Inches (8), Inches(1))
+        textbox=slide.shapes.add_textbox(Inches(0.5), Inches(7), Inches (8), Inches(1))
         text_frame=textbox.text_frame
         text_frame.text=self.output_text.get()
 
