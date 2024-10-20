@@ -156,10 +156,14 @@ class SignificanceCalculatorApp:
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas.draw()
         canvas.get_tk_widget().pack()
-            
+
+        #I want to generate a unique file name
+        timestamp = self.datetime.now().strftime('%Y%m%d_%H%M%S')
+        img_path = f'plot_{timestamp}.png' 
+
         #saving the plot as an image for export.
         fig.savefig('plot.png', bbox_inches='tight')
-        
+
 
     def reset_fields(self): # This enables a reset button to clear fields and get ready for the next computation
         self.entry_sample_size_a.delete(0, tk.END)
