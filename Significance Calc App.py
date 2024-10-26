@@ -1,4 +1,8 @@
-import tkinter as tk
+try:
+    import customtkinter as ctk
+except ImportError:
+    print ("Please install pip3 install customtkinter to use this feature")
+    exit()
 from scipy import stats
 import math
 import seaborn as sns
@@ -20,53 +24,58 @@ class SignificanceCalculatorApp:
     def __init__(self, master):
         self.master=master
         self.master.title("Statistical Significance Calculator")
+        self.master.geometry("600x650")
+
+        #setting a theme for the application
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
 
         # Initialize UI components
         self.create_widgets()
 
     def create_widgets(self):
         # this is to prompt the input of a custom slide title.
-        tk.Label(self.master, text="Enter a Title for your slide:").grid(row=7, column=0)
-        self.entry_slide_title = tk.Entry(self.master)
+        ctk.CTkLabel(self.master, text="Enter a Title for your slide:").grid(row=7, column=0)
+        self.entry_slide_title = ctk.CTkEntry(self.master,width=150)
         self.entry_slide_title.grid(row=7, column=1)
 
         # Input fields
-        tk.Label(self.master, text="Sample Size A:").grid(row=0, column=0, padx=10, pady=5)
-        self.entry_sample_size_a = tk.Entry(self.master)
+        ctk.CTkLabel(self.master, text="Sample Size A:").grid(row=0, column=0, padx=10, pady=5)
+        self.entry_sample_size_a = ctk.CTkEntry(self.master)
         self.entry_sample_size_a.grid(row=0, column=1, padx=10, pady=5)
 
-        tk.Label(self.master, text="Percentage A:").grid(row=1, column=0, padx=10,pady=5)
-        self.entry_percentage_a = tk.Entry(self.master)
+        ctk.CTkLabel(self.master, text="Percentage A:").grid(row=1, column=0, padx=10,pady=5)
+        self.entry_percentage_a = ctk.CTkEntry(self.master)
         self.entry_percentage_a.grid(row=1, column=1, padx=10, pady=5)
 
-        tk.Label(self.master, text="Sample Size B:").grid(row=2, column=0, padx=10, pady=5)
-        self.entry_sample_size_b = tk.Entry(self.master)
+        ctk.CTkLabel(self.master, text="Sample Size B:").grid(row=2, column=0, padx=10, pady=5)
+        self.entry_sample_size_b = ctk.CTkEntry(self.master)
         self.entry_sample_size_b.grid(row=2, column=1, padx=10, pady=5)
 
-        tk.Label(self.master, text="Percentage B:").grid(row=3, column=0, padx=10, pady=5)
-        self.entry_percentage_b = tk.Entry(self.master)
+        ctk.CTkLabel(self.master, text="Percentage B:").grid(row=3, column=0, padx=10, pady=5)
+        self.entry_percentage_b = ctk.CTkEntry(self.master)
         self.entry_percentage_b.grid(row=3, column=1, padx=10, pady=5)
 
         # Compute button
-        compute_button = tk.Button(self.master, text="Compute", command=self.calculate_significance)
-        compute_button.grid(row=4, column=0, columnspan=2)
+        compute_button = ctk.CTkButton(self.master, text="Compute", command=self.calculate_significance)
+        compute_button.grid(row=4, column=0, columnspan=3, pady=10)
 
         # Reset button
-        reset_button = tk.Button(self.master, text="Reset", command=self.reset_fields)
-        reset_button.grid(row=4, column=2, padx=5, pady=5)
+        reset_button = ctk.CTkButton(self.master, text="Reset", command=self.reset_fields)
+        reset_button.grid(row=4, column=3, padx=5, pady=5)
 
         # Output label
-        self.output_text = tk.StringVar()
-        output_label = tk.Label(self.master, textvariable=self.output_text)
-        output_label.grid(row=5, column=0, columnspan=2)
+        self.output_text = ctk.StringVar()
+        output_label = ctk.CTkLabel(self.master, textvariable=self.output_text)
+        output_label.grid(row=5, column=1, columnspan=2)
 
         #output button to export graph
-        export_button=tk.Button(self.master, text="Export to Power Point", command=self.export_to_powerpoint)
+        export_button=ctk.CTkButton(self.master, text="Export to Power Point", command=self.export_to_powerpoint)
         export_button.grid(row=8, column=0, columnspan=3,padx=5, pady=5)
 
         # Frame for the plot
-        self.plot_frame = tk.Frame(self.master)
-        self.plot_frame.grid(row=6, column=0, columnspan=3)
+        self.plot_frame = ctk.CTkFrame(self.master)
+        self.plot_frame.grid(row=6, column=0, columnspan=3, padx=20, pady=10)
 
     #This input def allows for validation of the percentages.
     def validate_input(self):
@@ -134,7 +143,12 @@ class SignificanceCalculatorApp:
         # Create a new figure
         fig, ax = plt.subplots(figsize=(4, 3))
 
+        #setting themes
+        sns.set_theme(style="whitegrid")
+        sns.set_palette("pastel")
+        
         # Data for the bar chart
+        plt.xlabel('Percentage', fontsize=14)
         labels = ['Percentage A', 'Percentage B']
         values = [p1 * 100, p2 * 100]
 
@@ -163,10 +177,10 @@ class SignificanceCalculatorApp:
 
 
     def reset_fields(self): # This enables a reset button to clear fields and get ready for the next computation
-        self.entry_sample_size_a.delete(0, tk.END)
-        self.entry_percentage_a.delete(0, tk.END)
-        self.entry_sample_size_b.delete(0, tk.END)  # Fixed the reference here
-        self.entry_percentage_b.delete(0, tk.END)  # Fixed the reference here
+        self.entry_sample_size_a.delete(0, ctk.END)
+        self.entry_percentage_a.delete(0, ctk.END)
+        self.entry_sample_size_b.delete(0, ctk.END)  # Fixed the reference here
+        self.entry_percentage_b.delete(0, ctk.END)  # Fixed the reference here
         self.output_text.set('')  # Clear output text after reset
 
     # Clear the graph
@@ -222,6 +236,6 @@ class SignificanceCalculatorApp:
 
 # Tkinter setup
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ctk.CTk()
     app = SignificanceCalculatorApp(root)
     root.mainloop()
