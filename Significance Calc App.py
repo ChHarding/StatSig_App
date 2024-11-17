@@ -24,7 +24,7 @@ class SignificanceCalculatorApp:
     def __init__(self, master):
         self.master=master
         self.master.title("Statistical Significance Calculator")
-        self.master.geometry("600x650")
+        self.master.geometry("650x650")
 
         #setting a theme for the application
         ctk.set_appearance_mode("dark")
@@ -58,11 +58,11 @@ class SignificanceCalculatorApp:
 
         # Compute button
         compute_button = ctk.CTkButton(self.master, text="Compute", command=self.calculate_significance)
-        compute_button.grid(row=4, column=0, columnspan=3, pady=10)
+        compute_button.grid(row=4, column=0, columnspan=3, pady=5)
 
         # Reset button
         reset_button = ctk.CTkButton(self.master, text="Reset", command=self.reset_fields)
-        reset_button.grid(row=4, column=3, padx=5, pady=5)
+        reset_button.grid(row=4, column=2, padx=5, pady=5)
 
         # Output label
         self.output_text = ctk.StringVar()
@@ -129,19 +129,19 @@ class SignificanceCalculatorApp:
             self.output_text.set(f"Not significant (p-value: {p_value:.4f})")
 
     # Update graph with the confidence_reached variable
-        self.update_graph(p1, p2, confidence_reached)
+        self.update_graph(n1,n2,p1, p2, confidence_reached)
 
     # Call the function to update the graph
-        self.update_graph(p1, p2, confidence_reached)
+        self.update_graph(n1,n2,p1, p2, confidence_reached)
 
-    def update_graph(self,p1, p2, confidence_reached):
+    def update_graph(self, n1, n2, p1, p2, confidence_reached):
 
         # Clear the previous plot
         for widget in self.plot_frame.winfo_children():
             widget.destroy()
 
         # Create a new figure
-        fig, ax = plt.subplots(figsize=(4, 3))
+        fig, ax = plt.subplots(figsize=(6, 3))
 
         #setting themes
         sns.set_theme(style="whitegrid")
@@ -157,15 +157,56 @@ class SignificanceCalculatorApp:
 
         # Use seaborn to create the bar plot
         sns.barplot(x='Labels', y='Values', data=data, ax=ax, palette='deep')
+        for index, value in enumerate(values):
+         ax.text(index, value + 1, f"{value:.1f}%", ha='center', va='bottom', fontsize=10)
 
         # Add a line indicating the significance level, if any
         if confidence_reached:
             ax.axhline(confidence_reached * 100, color='red', linestyle='--', label=f'Significant at {confidence_reached*100}%')
             ax.legend()
 
+        # Add gridlines
+        ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
+
         # Set the plot labels and title
         ax.set_ylabel('Percentages')
         ax.set_title('Percentage Comparison')
+        ax.set_xlabel('Groups')
+
+        #Calculate actual difference between percentages
+        actual_difference= abs(p1-p2)*100
+
+       # Define significance levels and required differences
+        significance_levels = [0.80, 0.85, 0.90, 0.95, 0.99]
+        required_differences = [
+            round(stats.norm.ppf(1 - (1 - conf) / 2) * math.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2), 2)
+            for conf in significance_levels
+        ]
+
+        # Create table data
+        table_data = [["Level", "Required Difference"]] + [
+            [f"{int(conf * 100)}%", f"{diff:.2f}"] for conf, diff in zip(significance_levels, required_differences)
+        ]
+
+        # Create the table
+        table = ax.table(cellText=table_data, colWidths=[0.3, 0.5], loc='right', cellLoc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(8)
+        table.scale(1, 1.5)  # Adjust table scale
+
+        # Highlight the row based on confidence_reached
+        if confidence_reached:
+            # Find the index of the confidence_reached in significance_levels
+            highlight_row_index = significance_levels.index(confidence_reached)
+
+            # Highlight the corresponding row in the table
+            for col in range(len(table_data[0])):
+                cell = table[highlight_row_index + 1, col]  # +1 accounts for the header row
+                cell.set_facecolor('#FFDDC1')  # Highlight color
+                cell.set_fontsize(9)
+
+        # Adjust the plot layout to accommodate the table
+        plt.subplots_adjust(right=0.6)
 
         # Embed the plot into Tkinter
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
