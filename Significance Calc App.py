@@ -3,6 +3,11 @@ try:
 except ImportError:
     print ("Please install pip3 install customtkinter to use this feature")
     exit()
+from tkinter.colorchooser import askcolor  # For color picking
+import os
+import platform
+import tkinter.filedialog as fd
+from tkinter import messagebox
 from scipy import stats
 import math
 import seaborn as sns
@@ -56,6 +61,9 @@ class SignificanceCalculatorApp:
         self.entry_percentage_b = ctk.CTkEntry(self.master)
         self.entry_percentage_b.grid(row=3, column=1, padx=10, pady=5)
 
+        # Color Picker for chart colors
+        ctk.CTkButton(self.master, text="Pick Bar Color", command=self.pick_color).grid(row=4, column=0, pady=5)
+       
         # Compute button
         compute_button = ctk.CTkButton(self.master, text="Compute", command=self.calculate_significance)
         compute_button.grid(row=4, column=0, columnspan=3, pady=5)
@@ -128,11 +136,17 @@ class SignificanceCalculatorApp:
         else:
             self.output_text.set(f"Not significant (p-value: {p_value:.4f})")
 
-    # Update graph with the confidence_reached variable
-        self.update_graph(n1,n2,p1, p2, confidence_reached)
-
     # Call the function to update the graph
         self.update_graph(n1,n2,p1, p2, confidence_reached)
+
+    def pick_color(self):
+        """Opens a color picker dialog to select two colors for the bars."""
+        color1 = askcolor()[1]  # Get the hex color code for the first bar
+        color2 = askcolor()[1]  # Get the hex color code for the second bar
+        if color1 and color2:  # Ensure both colors are selected
+            self.bar_colors = [color1, color2]  # Store the selected colors
+        else:
+            self.bar_colors = ['#1f77b4', '#ff7f0e']  # Default colors (blue and orange)
 
     def update_graph(self, n1, n2, p1, p2, confidence_reached):
 
@@ -148,30 +162,32 @@ class SignificanceCalculatorApp:
         sns.set_palette("pastel")
         
         # Data for the bar chart
-        plt.xlabel('Percentage', fontsize=14)
+        plt.xlabel(' ', fontsize=14)
         labels = ['Percentage A', 'Percentage B']
         values = [p1 * 100, p2 * 100]
 
         # Create a DataFrame for easier plotting with seaborn
         data = pd.DataFrame({'Labels': labels, 'Values': values})
 
+        # Use the selected bar colors (or default ones)
+        bar_colors = getattr(self, 'bar_colors', ['#1f77b4', '#ff7f0e'])  # Default colors if not selected
+
         # Use seaborn to create the bar plot
-        sns.barplot(x='Labels', y='Values', data=data, ax=ax, palette='deep')
+        sns.barplot(x='Labels', y='Values', data=data, ax=ax, palette=bar_colors)
         for index, value in enumerate(values):
          ax.text(index, value + 1, f"{value:.1f}%", ha='center', va='bottom', fontsize=10)
+
+        # Set y-axis to always show 0 to 100
+        ax.set_ylim(0, 100)
 
         # Add a line indicating the significance level, if any
         if confidence_reached:
             ax.axhline(confidence_reached * 100, color='red', linestyle='--', label=f'Significant at {confidence_reached*100}%')
             ax.legend()
 
-        # Add gridlines
-        ax.yaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
-
         # Set the plot labels and title
         ax.set_ylabel('Percentages')
         ax.set_title('Percentage Comparison')
-        ax.set_xlabel('Groups')
 
         #Calculate actual difference between percentages
         actual_difference= abs(p1-p2)*100
@@ -228,52 +244,96 @@ class SignificanceCalculatorApp:
         for widget in self.plot_frame.winfo_children():
             widget.destroy()
 
+    def get_templates_directory():
+            if platform.system() == "Darwin":  # macOS
+                return os.path.expanduser("~/Library/Application Support/Microsoft/Office/User Templates/My Templates")
+            elif platform.system() == "Windows":  # Windows
+                return os.path.expandvars(r"%AppData%\Microsoft\Templates")
+            else:
+                return None  # For other OS, leave it blank or handle accordingly
+    
     def export_to_powerpoint(self):
-        
-        slide_title=self.entry_slide_title.get()
+     
+    # Prompt user to select a PowerPoint template
+        template_path = fd.askopenfilename(
+        title="Select PowerPoint To Append Slide To. If no template hit cancel for blank template",
+        filetypes=[("PowerPoint files", "*.pptx")],
+    )
+
+        if not template_path:
+        # If no template is selected, notify the user
+            response = messagebox.askyesno(
+            "No Template Selected",
+            "No template was selected. Do you want to proceed with a blank presentation?",
+        )
+            if not response:
+                return  # Exit if the user doesn't want to proceed
+
+    # Load the template or create a new presentation
+        try:
+            if template_path:
+                prs = Presentation(template_path)  # Load selected template
+            else:
+                prs = Presentation()  # Create a blank presentation
+        except Exception as e:
+            self.output_text.set(f"Error loading template: {e}")
+            return
+
+        slide_title = self.entry_slide_title.get()
         if not slide_title:
             self.output_text.set("Please provide a title for your slide.")
             return
 
-        #create a power point presentation
-        prs=Presentation()
-        
-        # add a slide with a title and a content layer
-        slide_layout=prs.slide_layouts[6] #this should give you a blank slide.
-        slide=prs.slides.add_slide(slide_layout)
-        
-        # Add a title as a textbox
+        # Add a slide (assuming title layout exists in the template)
+        try:
+            slide_layout = prs.slide_layouts[6]  # Default to blank layout
+        except IndexError:
+            slide_layout = prs.slide_layouts[0]  # Fallback to title layout
+        slide = prs.slides.add_slide(slide_layout)
+
+        # Add a title as a text box
         left = Inches(0.5)
-        top = Inches(0.5)  # Position from the top of the slide
-        width = Inches(8)  # Width of the text box
-        height = Inches(1)  # Height of the text box
+        top = Inches(0.5)
+        width = Inches(8)
+        height = Inches(1)
         title_box = slide.shapes.add_textbox(left, top, width, height)
         title_frame = title_box.text_frame
         title_frame.text = slide_title
-        
-        # Set the alignment for the title
         for paragraph in title_frame.paragraphs:
-            paragraph.alignment = PP_ALIGN.LEFT  # Left justify
-        # Optionally, if you want it to align at the top within the box, you can adjust:
-            paragraph.space_after = 0  # Remove space after
-         # Set font size for the paragraph
+            paragraph.alignment = PP_ALIGN.LEFT
         for run in paragraph.runs:
             run.font.size = Inches(0.375)
 
-        #add plot to the slide
-        img_path= getattr(self, 'latest_image_path', 'plot.png')
-        left=Inches(0.5)
-        top=Inches(1.0)
-        slide.shapes.add_picture(img_path, left, top, height=Inches(6))
+        # Add the plot to the slide
+        img_path = getattr(self, 'latest_image_path', 'plot.png')
+        left = Inches(0.1)  # Position from the left
+        top = Inches(1.8)   # Position from the top
+        width = Inches(9)   # Change the width as desired
+        height = Inches(4.5)  # Change the height as desired
 
-        #add the significance output to the slide
-        textbox=slide.shapes.add_textbox(Inches(0.5), Inches(7), Inches (8), Inches(1))
-        text_frame=textbox.text_frame
-        text_frame.text=self.output_text.get()
+        # Add the picture to the slide with adjusted size
+        slide.shapes.add_picture(img_path, left, top, width=width, height=height)
+        
+        # Add the significance output to the slide
+        textbox = slide.shapes.add_textbox(Inches(0.5), Inches(7), Inches(8), Inches(1))
+        text_frame = textbox.text_frame
+        text_frame.text = self.output_text.get()
 
-        #save the power point file 
-        prs.save('significance_result.pptx')
-        self.output_text.set('Exported to significance_result.pptx')
+        # Save the PowerPoint file
+        try:
+            save_path = fd.asksaveasfilename(
+                defaultextension=".pptx",
+                filetypes=[("PowerPoint files", "*.pptx")],
+                title="Save PowerPoint File",
+            )
+            if not save_path:
+                self.output_text.set("Export canceled.")
+                return
+
+            prs.save(save_path)
+            self.output_text.set(f"Exported to {save_path}")
+        except Exception as e:
+            self.output_text.set(f"Export failed: {e}")
 
 # Tkinter setup
 if __name__ == "__main__":
